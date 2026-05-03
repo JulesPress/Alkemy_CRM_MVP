@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Alkemy CRM | Evolution Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            --accent-black: #000000;
+            --bg: #F0F2F5;
+            --card: #FFFFFF;
+            --sidebar: #E4E7EB;
+            --text: #4A5056;
+            --title-text: #1A1D20;
+            --grey-border: #D1D7DC;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+        }
+
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            position: fixed;
+            background: var(--sidebar);
+            border-right: 1px solid var(--grey-border);
+            padding: 25px 0;
+        }
+
+        .logo {
+            padding: 0 30px 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            max-width: 140px;
+            height: auto;
+        }
+
+        .nav-link {
+            color: #666;
+            padding: 12px 30px;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            border-left: 4px solid transparent;
+        }
+
+        .nav-link i {
+            width: 25px;
+            font-size: 1.1rem;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: var(--title-text);
+            background: var(--bg);
+            border-left-color: var(--title-text);
+        }
+
+        .content {
+            margin-left: 260px;
+            padding: 40px;
+        }
+
+        .kpi-card {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--grey-border);
+            transition: 0.3s;
+        }
+
+        .kpi-card:hover {
+            border-color: var(--title-text);
+            transform: translateY(-3px);
+        }
+
+        .kpi-title {
+            color: #666;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--title-text);
+        }
+
+        .chart-box {
+            background: var(--card);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--grey-border);
+            margin-top: 30px;
+        }
+
+        .table-box {
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid var(--grey-border);
+            margin-top: 30px;
+        }
+
+        .table {
+            color: var(--text);
+        }
+
+        .table thead {
+            color: #666;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        .btn-alkemy {
+            background: var(--title-text);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .btn-alkemy:hover {
+            background: #333;
+            color: #fff;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            color: var(--title-text);
+        }
+
+        .page-section {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Chatbot Styles */
+        .chat-container {
+            background: var(--card);
+            border-radius: 15px;
+            border: 1px solid var(--grey-border);
+            height: calc(100vh - 200px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-history {
+            flex-grow: 1;
+            padding: 30px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            margin-bottom: 20px;
+            max-width: 80%;
+            line-height: 1.5;
+        }
+
+        .chat-message.user {
+            margin-left: auto;
+            background: #E4E7EB;
+            padding: 15px 20px;
+            border-radius: 15px 15px 0 15px;
+            color: #222;
+        }
+
+        .chat-message.ai {
+            margin-right: auto;
+            background: var(--bg);
+            padding: 15px 20px;
+            border-radius: 15px 15px 15px 0;
+            border: 1px solid var(--grey-border);
+        }
+
+        .chat-input-area {
+            padding: 20px;
+            border-top: 1px solid var(--grey-border);
+            background: var(--bg);
+            border-radius: 0 0 15px 15px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .chat-input-area textarea {
+            flex-grow: 1;
+            border-radius: 10px;
+            border: 1px solid var(--grey-border);
+            padding: 15px;
+            background: var(--card);
+            color: var(--text);
+            resize: none;
+            height: 60px;
+        }
+
+        .chat-input-area textarea:focus {
+            outline: none;
+            border-color: #999;
+        }
+
+        /* Ticket Kanban Styles */
+        .kanban-board {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+        }
+
+        .kanban-column {
+            flex: 1;
+            min-width: 250px;
+            background: var(--bg);
+            border-radius: 15px;
+            padding: 15px;
+            border: 1px solid var(--grey-border);
+        }
+
+        .kanban-column h6 {
+            margin-bottom: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            color: #666;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--grey-border);
+        }
+
+        .ticket-card {
+            background: var(--card);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border: 1px solid var(--grey-border);
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .ticket-card:hover {
+            transform: translateY(-2px);
+            border-color: #999;
+        }
+
+        .ticket-tag {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 4px;
+            background: #D1D7DC;
+            color: #333;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #ccc;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <img src="https://mapp.com/wp-content/uploads/2020/09/Alkemy-logo.png" alt="Alkemy Logo">
+        </div>
+        <div class="nav flex-column">
+            <a href="#" class="nav-link active" data-target="overview-section"><i class="fas fa-chart-pie"></i>
+                Overview</a>
+            <a href="#" class="nav-link" data-target="chatbot-section"><i class="fas fa-robot"></i> AI Chatbot</a>
+            <a href="#" class="nav-link" data-target="tickets-section"><i class="fas fa-ticket-alt"></i> Tickets</a>
+            <a href="#" class="nav-link" data-target="projects-section"><i class="fas fa-layer-group"></i> Projects</a>
+        </div>
+    </div>
+    <div class="content">
+        <div id="overview-section" class="page-section active">
+            <div class="d-flex justify-content-between align-items-center mb-5">
+                <div>
+                    <h2 class="fw-bold mb-0">Evolution CRM</h2>
+                    <p class="text-muted">Data-driven business evolution for Alkemy Group</p>
+                </div>
+                <button class="btn btn-alkemy">Generate AI Report</button>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-3">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Revenue (YTD)</div>
+                        <div class="kpi-value">$3.36M</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Active Projects</div>
+                        <div class="kpi-value">64</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card">
+                        <div class="kpi-title">AI Adoption</div>
+                        <div class="kpi-value">36.1%</div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Profit Margin</div>
+                        <div class="kpi-value">31.8%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-8">
+                    <div class="chart-box">
+                        <div id="trendChart"></div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="chart-box">
+                        <div id="tierChart"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-box">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="mb-0 fw-bold">Active Operation Queue</h5>
+                    <small class="text-muted">Last 10 updates</small>
+                </div>
+                <div class="table-responsive">
+                    <table class="dataframe table table-hover table-borderless">
+                        <thead>
+                            <tr style="text-align: right;">
+                                <th>task_id</th>
+                                <th>client</th>
+                                <th>team</th>
+                                <th>task_type</th>
+                                <th>task_status</th>
+                                <th>revenue</th>
+                                <th>ai_usage_pct</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>T01258</td>
+                                <td>Client_G</td>
+                                <td>Design</td>
+                                <td>ad</td>
+                                <td>delivered</td>
+                                <td>$740.38</td>
+                                <td>64%</td>
+                            </tr>
+                            <tr>
+                                <td>T01715</td>
+                                <td>Client_G</td>
+                                <td>Design</td>
+                                <td>ad</td>
+                                <td>in_progress</td>
+                                <td>$845.29</td>
+                                <td>5%</td>
+                            </tr>
+                            <tr>
+                                <td>T00702</td>
+                                <td>Client_G</td>
+                                <td>Media</td>
+                                <td>ad</td>
+                                <td>delivered</td>
+                                <td>$841.68</td>
+                                <td>29%</td>
+                            </tr>
+                            <tr>
+                                <td>T01490</td>
+                                <td>Client_B</td>
+                                <td>Design</td>
+                                <td>design</td>
+                                <td>in_progress</td>
+                                <td>$1,074.74</td>
+                                <td>7%</td>
+                            </tr>
+                            <tr>
+                                <td>T02932</td>
+                                <td>Client_C</td>
+                                <td>Content</td>
+                                <td>dev</td>
+                                <td>in_progress</td>
+                                <td>$1,211.54</td>
+                                <td>19%</td>
+                            </tr>
+                            <tr>
+                                <td>T00955</td>
+                                <td>Client_D</td>
+                                <td>Design</td>
+                                <td>report</td>
+                                <td>in_progress</td>
+                                <td>$1,153.52</td>
+                                <td>17%</td>
+                            </tr>
+                            <tr>
+                                <td>T02384</td>
+                                <td>Client_C</td>
+                                <td>content</td>
+                                <td>report</td>
+                                <td>in_progress</td>
+                                <td>$1,262.19</td>
+                                <td>72%</td>
+                            </tr>
+                            <tr>
+                                <td>T02444</td>
+                                <td>Client_H</td>
+                                <td>SEO</td>
+                                <td>report</td>
+                                <td>blocked</td>
+                                <td>$2,768.82</td>
+                                <td>19%</td>
+                            </tr>
+                            <tr>
+                                <td>T02913</td>
+                                <td>Client_E</td>
+                                <td>Media</td>
+                                <td>ad</td>
+                                <td>review</td>
+                                <td>$1,216.10</td>
+                                <td>57%</td>
+                            </tr>
+                            <tr>
+                                <td>T00457</td>
+                                <td>Client_A</td>
+                                <td>Content</td>
+                                <td>design</td>
+                                <td>in_progress</td>
+                                <td>$513.06</td>
+                                <td>50%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="chart-box mb-5">
+                <div id="aiImpactChart"></div>
+            </div>
+        </div>
+
+        <div id="chatbot-section" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0">Alkemy AI Assistant</h2>
+                    <p class="text-muted mb-0">Powered by Claude - Coding, Reporting, & Marketing Agent</p>
+                </div>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="text-end px-3 py-1" style="background: var(--card); border-radius: 8px; border: 1px solid var(--grey-border);">
+                        <div class="text-muted text-uppercase" style="font-size: 0.65rem; letter-spacing: 1px; font-weight: 600;">AI Usage</div>
+                        <div class="fw-bold" style="font-size: 1.2rem; color: #4CAF50;">34%</div>
+                    </div>
+                    <button class="btn btn-alkemy"><i class="fas fa-plus"></i> New Chat</button>
+                </div>
+            </div>
+            <div class="chat-container">
+                <div class="chat-history" id="chatHistory">
+                    <div class="chat-message ai">
+                        <strong>Alkemy AI:</strong> Hello! I'm your Alkemy AI assistant. I can help you write code,
+                        generate performance reports, or draft marketing copy. How can I assist you today?
+                    </div>
+                    <div class="chat-message user">
+                        Could you draft a short email campaign for Client_G based on their recent Ad performance?
+                    </div>
+                    <div class="chat-message ai">
+                        <strong>Alkemy AI:</strong> Certainly. Based on the data, Client_G's recent Ad campaigns (task
+                        T01258) delivered excellent results with high AI usage.
+                        <br><br>
+                        Here is a draft:
+                        <br>
+                        <i>"Hi Team,<br>We're thrilled to share that our recent AI-driven ad campaign has delivered
+                            outstanding engagement, boosting ROI by 15%..."</i>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <textarea placeholder="Message Alkemy AI..."></textarea>
+                    <button class="btn btn-alkemy d-flex align-items-center justify-content-center" style="width: 60px;"
+                        onclick="simulateChat()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <div id="tickets-section" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0">Ticket Management</h2>
+                    <p class="text-muted">Manage active operations and tasks</p>
+                </div>
+                <button class="btn btn-alkemy"><i class="fas fa-plus"></i> Open New Ticket</button>
+            </div>
+
+            <div class="kanban-board">
+                <div class="kanban-column">
+                    <h6>To Do</h6>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T03011</span>
+                            <span class="ticket-tag">Design</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_A</div>
+                        <div class="fw-bold">Create new banner assets</div>
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h6>In Progress</h6>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T01715</span>
+                            <span class="ticket-tag">Design</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_G</div>
+                        <div class="fw-bold">Ad campaign visuals</div>
+                    </div>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T02932</span>
+                            <span class="ticket-tag">Content</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_C</div>
+                        <div class="fw-bold">Dev content review</div>
+                    </div>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T02384</span>
+                            <span class="ticket-tag">Content</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_C</div>
+                        <div class="fw-bold">Quarterly Report generation</div>
+                    </div>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T00457</span>
+                            <span class="ticket-tag">Content</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_A</div>
+                        <div class="fw-bold">Design review phase</div>
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h6>Review</h6>
+                    <div class="ticket-card">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T02913</span>
+                            <span class="ticket-tag">Media</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_E</div>
+                        <div class="fw-bold">Ad targeting optimization</div>
+                    </div>
+                </div>
+
+                <div class="kanban-column">
+                    <h6>Delivered / Blocked</h6>
+                    <div class="ticket-card" style="border-left: 3px solid #4CAF50;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T01258</span>
+                            <span class="ticket-tag">Design</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_G</div>
+                        <div class="fw-bold">Ad Delivery Complete</div>
+                    </div>
+                    <div class="ticket-card" style="border-left: 3px solid #F44336;">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="fw-bold">T02444</span>
+                            <span class="ticket-tag">SEO</span>
+                        </div>
+                        <div class="text-muted small mb-2">Client_H</div>
+                        <div class="fw-bold text-danger">Blocked: Need access credentials</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="projects-section" class="page-section">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h2 class="fw-bold mb-0">Project Portfolio</h2>
+                    <p class="text-muted">Overview of all active projects and assigned teams</p>
+                </div>
+                <button class="btn btn-alkemy"><i class="fas fa-plus"></i> New Project</button>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Project Card 1 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">Ad Campaign Strategy</h5>
+                            <span class="badge bg-success bg-opacity-25 text-success">Active</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_G</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-paint-brush me-1"></i>Design</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">75%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 75%"></div>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 2 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">Website Redesign</h5>
+                            <span class="badge bg-success bg-opacity-25 text-success">Active</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_B</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-code me-1"></i>Dev</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">40%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-dark" style="width: 40%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 3 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">SEO Optimization</h5>
+                            <span class="badge bg-warning bg-opacity-25 text-warning">Review</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_H</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-search me-1"></i>SEO</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">90%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 90%"></div>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Project Card 4 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">Quarterly Report</h5>
+                            <span class="badge bg-success bg-opacity-25 text-success">Active</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_C</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-pen-nib me-1"></i>Content</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">25%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-dark" style="width: 25%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 5 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">Media Targeting</h5>
+                            <span class="badge bg-secondary bg-opacity-25 text-secondary">Planning</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_E</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-bullseye me-1"></i>Media</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">10%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-dark" style="width: 10%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Project Card 6 -->
+                <div class="col-md-4">
+                    <div class="kpi-card h-100 d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="fw-bold mb-0" style="color: var(--title-text);">Ad Delivery</h5>
+                            <span class="badge bg-primary bg-opacity-25 text-primary">Completed</span>
+                        </div>
+                        <p class="text-muted small mb-3">Client_G</p>
+                        <div class="mt-auto">
+                            <div class="d-flex justify-content-between small text-muted mb-2">
+                                <span>Assigned Team:</span>
+                                <span class="fw-bold text-dark"><i class="fas fa-paint-brush me-1"></i>Design</span>
+                            </div>
+                            <div class="d-flex justify-content-between small text-muted mb-1 mt-3">
+                                <span>AI Usage</span>
+                                <span class="fw-bold text-dark">100%</span>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                            </div>
+                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const cData = { "trend": "{\"data\":[{\"hovertemplate\":\"variable=revenue\\u003cbr\\u003emonth=%{x}\\u003cbr\\u003evalue=%{y}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"legendgroup\":\"revenue\",\"line\":{\"color\":\"#e20074\",\"dash\":\"solid\"},\"marker\":{\"symbol\":\"circle\"},\"mode\":\"lines\",\"name\":\"revenue\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[\"2025-07\",\"2025-08\",\"2025-09\",\"2025-10\",\"2025-11\",\"2025-12\",\"2026-01\",\"2026-02\",\"2026-03\",\"2026-04\",\"2026-05\"],\"xaxis\":\"x\",\"y\":[320391.19338938635,329346.172010818,275700.20876235643,311267.88857630535,289498.4757216226,303051.7069883101,353230.27993175614,280084.28,353976.93088057847,271491.3398215688,267048.1457382223],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"variable=profit\\u003cbr\\u003emonth=%{x}\\u003cbr\\u003evalue=%{y}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"legendgroup\":\"profit\",\"line\":{\"color\":\"#ffffff\",\"dash\":\"solid\"},\"marker\":{\"symbol\":\"circle\"},\"mode\":\"lines\",\"name\":\"profit\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[\"2025-07\",\"2025-08\",\"2025-09\",\"2025-10\",\"2025-11\",\"2025-12\",\"2026-01\",\"2026-02\",\"2026-03\",\"2026-04\",\"2026-05\"],\"xaxis\":\"x\",\"y\":[106142.1188474236,115348.49595847743,78479.60280332317,82820.2984187969,94602.99377851537,103950.68845560301,119261.57945214071,83098.36,109554.4372051958,68827.82533240317,104108.0698985675],\"yaxis\":\"y\",\"type\":\"scatter\"}],\"layout\":{\"template\":{\"data\":{\"barpolar\":[{\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"barpolar\"}],\"bar\":[{\"error_x\":{\"color\":\"#f2f5fa\"},\"error_y\":{\"color\":\"#f2f5fa\"},\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"bar\"}],\"carpet\":[{\"aaxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"baxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"type\":\"carpet\"}],\"choropleth\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"choropleth\"}],\"contourcarpet\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"contourcarpet\"}],\"contour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"contour\"}],\"heatmapgl\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmapgl\"}],\"heatmap\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmap\"}],\"histogram2dcontour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2dcontour\"}],\"histogram2d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2d\"}],\"histogram\":[{\"marker\":{\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"histogram\"}],\"mesh3d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"mesh3d\"}],\"parcoords\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"parcoords\"}],\"pie\":[{\"automargin\":true,\"type\":\"pie\"}],\"scatter3d\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatter3d\"}],\"scattercarpet\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattercarpet\"}],\"scattergeo\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattergeo\"}],\"scattergl\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scattergl\"}],\"scattermapbox\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattermapbox\"}],\"scatterpolargl\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolargl\"}],\"scatterpolar\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolar\"}],\"scatter\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scatter\"}],\"scatterternary\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterternary\"}],\"surface\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"surface\"}],\"table\":[{\"cells\":{\"fill\":{\"color\":\"#506784\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"header\":{\"fill\":{\"color\":\"#2a3f5f\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"type\":\"table\"}]},\"layout\":{\"annotationdefaults\":{\"arrowcolor\":\"#f2f5fa\",\"arrowhead\":0,\"arrowwidth\":1},\"autotypenumbers\":\"strict\",\"coloraxis\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"colorscale\":{\"diverging\":[[0,\"#8e0152\"],[0.1,\"#c51b7d\"],[0.2,\"#de77ae\"],[0.3,\"#f1b6da\"],[0.4,\"#fde0ef\"],[0.5,\"#f7f7f7\"],[0.6,\"#e6f5d0\"],[0.7,\"#b8e186\"],[0.8,\"#7fbc41\"],[0.9,\"#4d9221\"],[1,\"#276419\"]],\"sequential\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"sequentialminus\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]]},\"colorway\":[\"#636efa\",\"#EF553B\",\"#00cc96\",\"#ab63fa\",\"#FFA15A\",\"#19d3f3\",\"#FF6692\",\"#B6E880\",\"#FF97FF\",\"#FECB52\"],\"font\":{\"color\":\"#f2f5fa\"},\"geo\":{\"bgcolor\":\"rgb(17,17,17)\",\"lakecolor\":\"rgb(17,17,17)\",\"landcolor\":\"rgb(17,17,17)\",\"showlakes\":true,\"showland\":true,\"subunitcolor\":\"#506784\"},\"hoverlabel\":{\"align\":\"left\"},\"hovermode\":\"closest\",\"mapbox\":{\"style\":\"dark\"},\"paper_bgcolor\":\"rgb(17,17,17)\",\"plot_bgcolor\":\"rgb(17,17,17)\",\"polar\":{\"angularaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"radialaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"scene\":{\"xaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"yaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"zaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"}},\"shapedefaults\":{\"line\":{\"color\":\"#f2f5fa\"}},\"sliderdefaults\":{\"bgcolor\":\"#C8D4E3\",\"bordercolor\":\"rgb(17,17,17)\",\"borderwidth\":1,\"tickwidth\":0},\"ternary\":{\"aaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"baxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"caxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"title\":{\"x\":0.05},\"updatemenudefaults\":{\"bgcolor\":\"#506784\",\"borderwidth\":0},\"xaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2},\"yaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2}}},\"xaxis\":{\"anchor\":\"y\",\"domain\":[0.0,1.0],\"title\":{\"text\":\"month\"}},\"yaxis\":{\"anchor\":\"x\",\"domain\":[0.0,1.0],\"title\":{\"text\":\"value\"}},\"legend\":{\"title\":{\"text\":\"variable\"},\"tracegroupgap\":0},\"title\":{\"text\":\"Monthly Financial Evolution\"},\"margin\":{\"l\":20,\"r\":20,\"t\":50,\"b\":20},\"plot_bgcolor\":\"rgba(0,0,0,0)\",\"paper_bgcolor\":\"rgba(0,0,0,0)\"}}", "ai_impact": "{\"data\":[{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=SEO\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_D\",\"Client_G\",\"Client_C\",\"Client_F\",\"Client_E\",\"Client_E\",\"Client_F\",\"Client_F\",\"Client_G\",\"Client_A\",\"Client_D\",\"Client_E\",\"Client_A\",\"Client_E\",\"Client_H\",\"Client_A\",\"Client_F\",\"Client_F\",\"Client_F\",\"Client_G\",\"Client_D\",\"Client_H\",\"Client_B\",\"Client_F\",\"Client_B\",\"Client_D\",\"Client_C\",\"Client_A\",\"Client_G\",\"Client_B\",\"Client_B\",\"Client_G\",\"Client_F\",\"Client_B\",\"Client_C\",\"Client_H\",\"Client_A\",\"Client_B\",\"Client_F\",\"Client_D\",\"Client_G\",\"Client_E\",\"Client_E\",\"Client_E\",\"Client_G\",\"Client_C\",\"Client_C\",\"Client_C\",\"Client_G\",\"Client_D\",\"Client_H\",\"Client_D\",\"Client_G\",\"Client_B\",\"Client_H\",\"Client_A\",\"Client_R\",\"Client_B\",\"Client_C\",\"Client_A\",\"Client_B\",\"Client_H\",\"Client_F\",\"Client_F\",\"Client_G\",\"Client_D\",\"Client_E\",\"Client_B\",\"Client_D\",\"Client_A\",\"Client_H\",\"Client_G\",\"Client_H\",\"Client_A\",\"Client_D\",\"Client_A\",\"Client_F\",\"Client_C\",\"Client_D\",\"Client_H\",\"Client_G\",\"Client_G\",\"Client_B\",\"Client_B\",\"Client_A\",\"Client_G\",\"Client_F\",\"Client_D\",\"Client_A\",\"Client_B\",\"Client_E\",\"Client_G\",\"Client_E\",\"Client_H\",\"Client_D\",\"Client_D\",\"Client_G\",\"Client_A\",\"Client_B\",\"Client_H\",\"Client_E\",\"Client_C\",\"Client_C\",\"Client_D\",\"Client_B\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_H\",\"Client_A\",\"Client_H\",\"Client_D\",\"Client_B\",\"Client_G\",\"Client_A\",\"Client_D\",\"Client_E\",\"Client_D\",\"Client_E\",\"Client_C\",\"Client_G\",\"Client_A\",\"Client_H\",\"Client_T\",\"Client_F\",\"Client_A\",\"Client_B\",\"Client_[\",\"Client_F\",\"Client_T\",\"Client_C\",\"Client_H\",\"Client_D\",\"Client_C\",\"Client_A\",\"Client_D\",\"Client_D\",\"Client_A\",\"Client_G\",\"Client_H\",\"Client_E\",\"Client_C\",\"Client_B\",\"Client_F\",\"Client_A\",\"Client_E\",\"Client_A\",\"Client_A\",\"Client_A\",\"Client_D\",\"Client_F\",\"Client_C\",\"Client_H\",\"Client_F\",\"Client_A\",\"Client_A\",\"Client_G\",\"Client_E\",\"Client_G\",\"Client_H\",\"Client_C\",\"Client_A\",\"Client_H\",\"Client_A\",\"Client_D\",\"Client_F\",\"Client_E\",\"Client_A\",\"Client_J\",\"Client_D\",\"Client_A\",\"Client_B\",\"Client_D\",\"Client_D\",\"Client_E\",\"Client_H\",\"Client_E\",\"Client_E\",\"Client_H\",\"Client_G\"],\"legendgroup\":\"SEO\",\"marker\":{\"color\":\"rgb(229, 134, 6)\",\"size\":[967.69,1362.6,433.1,1206.89,679.25,1752.23,366.9,1753.39,511.38,494.99,1551.85,1798.71,894.31,1182.66,1811.45,560.7,772.95,1140.82,1744.96,654.42,1197.14,1344.93,553.2,554.76,939.53,1750.99,842.24,2506.79,865.46,1640.38,567.19,1156.93,1491.69,128.2,1621.67,830.45,857.18,705.74,954.85,1347.29,1141.3,971.8,1127.6,1755.82,769.31,475.63,2754.89,1750.69,656.84,562.53,1892.42,360.02,1750.43,746.68,755.65,613.86,921.56,197.68,711.02,480.28,1234.28,2394.28,1098.75,899.09,1198.85,572.88,705.43,1518.41,534.38,1077.89,922.19,737.94,375.28,2418.15,423.77,432.74,2635.97,1197.11,439.64,471.22,726.09,903.67,1402.87,2009.61,1856.53,989.54,1363.7,706.48,1952.64,366.6,252.61,379.22,1996.67,1520.49,728.13,997.05,521.0,619.43,1262.77,800.92,982.75,1095.64,1585.97,515.78,395.85,1474.57,1024.79,1782.49,819.61,8741.011149211485,940.49,467.22,1011.48,1600.54,1152.55,338.3,567.75,1586.84,386.88,1680.22,1854.97,2833.7,825.75,1605.72,688.97,467.24,1893.84,940.09,1255.63,1653.29,737.18,983.99,1255.9,1374.22,512.09,5524.23,607.08,664.16,759.08,758.0,487.75,1785.52,671.24,1759.62,1063.81,831.53,914.53,475.4,1703.55,832.38,996.56,1138.42,506.92,624.97,1365.78,2091.18,1678.88,2310.45,1747.66,478.88,679.72,1450.04,451.99,1208.98,1193.45,423.18,1489.2,1042.35,903.31,1255.9,5735.45,1145.89,499.26,1160.59,1095.41,736.06,1382.14,512.88,801.04,869.87],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"SEO\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.56,0.43,0.56,0.45,0.04,0.21,0.62,0.3,0.27,0.48,0.03,0.53,0.32,0.4,0.03,0.56,0.36,0.24,0.33,0.67,0.3,0.31,0.04,0.13,0.17,0.09,0.63,0.26,0.18,0.17,0.17,0.14,0.11,0.32,0.13,0.65,0.25,0.1,0.21,0.66,0.22,0.36,0.5,0.6,0.17,0.22,0.28,0.2,0.06,0.5,0.14,0.51,0.48,0.47,0.2,0.16,0.26,0.54,0.37,0.38,0.54,0.3,0.18,0.26,0.46,0.2,0.23,0.33,0.09,0.3,0.05,0.17,0.7,0.34,0.66,0.48,0.57,0.24,0.27,0.08,0.26,0.21,0.18,0.26,0.68,0.08,0.37,0.33,0.42,0.37,0.37,0.37,0.16,0.29,0.39,0.69,0.41,0.24,0.1,0.66,0.13,0.57,0.05,0.26,0.54,0.31,0.61,0.17,0.17,0.24,0.15,0.26,0.36,0.38,0.3,0.58,0.25,0.16,0.22,0.39,0.58,0.22,0.3,0.12,0.49,0.36,0.04,0.42,0.03,0.46,0.23,0.65,0.55,0.48,0.29,0.44,0.16,0.43,0.25,0.15,0.38,0.72,0.39,0.73,0.62,0.25,0.51,0.18,0.3,0.64,0.37,0.22,0.35,0.48,0.37,0.17,0.05,0.62,0.22,0.53,0.08,0.24,0.16,0.24,0.5,0.76,0.47,0.49,0.59,0.55,0.29,0.09,0.8,0.3,0.47,0.56,0.82,0.66,0.24,0.27],\"xaxis\":\"x\",\"y\":[71.38,63.24,74.75,68.32,61.04,59.38,69.55,64.7,41.96,72.97,74.84,64.45,68.17,72.67,53.84,87.04,70.46,54.65,69.6,79.22,73.94,71.93,63.29,52.02,69.1,67.3,81.93,72.51,61.22,47.94,78.51,57.8,81.09,90.43,57.08,71.76,74.93,84.7,61.06,74.76,73.75,54.45,59.95,50.1,92.55,71.58,51.9,50.99,64.51,83.92,70.28,75.14,57.64,71.45,65.73,32.44,71.34,81.7,54.86,86.7,72.74,73.94,80.56,80.36,69.47,69.17,58.27,81.87,72.69,70.33,87.42,73.61,65.48,49.37,55.23,34.08,53.52,51.62,66.4,90.32,68.35,100.0,64.17,70.45,81.37,60.06,81.68,80.64,82.6,31.57,61.33,59.36,63.69,42.62,86.06,62.46,82.07,58.48,72.82,69.83,73.69,57.03,53.88,91.22,71.61,82.32,80.89,68.57,68.39,65.78,67.61,68.07,43.26,59.4,78.4,77.14,60.95,61.69,69.06,77.28,64.7,80.9,57.72,75.72,91.41,42.6,65.61,69.07,68.98,83.99,69.21,52.54,42.34,73.63,76.3,55.95,77.36,82.21,67.08,69.34,86.69,49.3,65.86,62.3,77.66,59.95,60.43,80.53,63.73,67.56,54.73,59.98,56.48,68.77,54.94,47.25,72.34,63.42,75.48,54.6,55.98,65.78,76.81,59.96,53.26,62.87,75.92,86.0,68.37,42.34,42.9,69.51,94.65,68.18,67.14,68.1,76.16,57.9,83.1,84.9],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Media\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_H\",\"Client_D\",\"Client_K\",\"Client_H\",\"Client_B\",\"Client_E\",\"Client_B\",\"Client_E\",\"Client_E\",\"Client_A\",\"Client_B\",\"Client_D\",\"Client_C\",\"Client_E\",\"Client_C\",\"Client_V\",\"Client_D\",\"Client_A\",\"Client_D\",\"Client_G\",\"Client_F\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_H\",\"Client_B\",\"Client_G\",\"Client_E\",\"Client_B\",\"Client_A\",\"Client_B\",\"Client_D\",\"Client_J\",\"Client_C\",\"Client_E\",\"Client_G\",\"Client_G\",\"Client_F\",\"Client_H\",\"Client_H\",\"Client_E\",\"Client_E\",\"Client_H\",\"Client_F\",\"Client_H\",\"Client_D\",\"Client_B\",\"Client_A\",\"Client_A\",\"Client_F\",\"Client_G\",\"Client_D\",\"Client_B\",\"Client_B\",\"Client_H\",\"Client_A\",\"Client_E\",\"Client_C\",\"Client_C\",\"Client_H\",\"Client_D\",\"Client_D\",\"Client_H\",\"Client_E\",\"Client_E\",\"Client_A\",\"Client_D\",\"Client_B\",\"Client_A\",\"Client_H\",\"Client_H\",\"Client_H\",\"Client_G\",\"Client_T\",\"Client_G\",\"Client_F\",\"Client_E\",\"Client_B\",\"Client_H\",\"Client_H\",\"Client_G\",\"Client_A\",\"Client_G\",\"Client_C\",\"Client_D\",\"Client_D\",\"Client_F\",\"Client_C\",\"Client_B\",\"Client_G\",\"Client_F\",\"Client_E\",\"Client_C\",\"Client_H\",\"Client_E\",\"Client_F\",\"Client_R\",\"Client_F\",\"Client_B\",\"Client_G\",\"Client_G\",\"Client_G\",\"Client_G\",\"Client_E\",\"Client_G\",\"Client_G\",\"Client_I\",\"Client_C\",\"Client_C\",\"Client_C\",\"Client_E\",\"Client_C\",\"Client_C\",\"Client_Z\",\"Client_F\",\"Client_H\",\"Client_C\",\"Client_F\",\"Client_F\",\"Client_E\",\"Client_A\",\"Client_R\",\"Client_G\",\"Client_H\",\"Client_C\",\"Client_G\",\"Client_E\",\"Client_E\",\"Client_B\",\"Client_H\",\"Client_E\",\"Client_F\",\"Client_C\",\"Client_F\",\"Client_G\",\"Client_C\",\"Client_F\",\"Client_E\",\"Client_G\",\"Client_H\",\"Client_B\",\"Client_D\",\"Client_E\",\"Client_C\",\"Client_Y\",\"Client_B\",\"Client_B\",\"Client_A\",\"Client_D\",\"Client_H\",\"Client_E\",\"Client_B\",\"Client_M\",\"Client_C\",\"Client_F\",\"Client_E\",\"Client_B\",\"Client_F\",\"Client_W\",\"Client_G\",\"Client_A\",\"Client_B\",\"Client_C\",\"Client_C\",\"Client_D\",\"Client_D\",\"Client_E\",\"Client_B\",\"Client_A\",\"Client_C\",\"Client_E\",\"Client_G\",\"Client_C\",\"Client_H\",\"Client_H\",\"Client_F\",\"Client_A\",\"Client_E\",\"Client_D\",\"Client_F\",\"Client_D\",\"Client_G\",\"Client_H\",\"Client_E\",\"Client_A\",\"Client_G\",\"Client_G\",\"Client_J\",\"Client_G\",\"Client_M\",\"Client_B\",\"Client_H\",\"Client_F\",\"Client_D\",\"Client_C\",\"Client_E\",\"Client_A\",\"Client_C\",\"Client_H\",\"Client_H\"],\"legendgroup\":\"Media\",\"marker\":{\"color\":\"rgb(93, 105, 177)\",\"size\":[1863.02,1899.31,2180.92,507.15,343.11,1003.63,1332.77,432.32,1010.98,1860.74,802.6,1282.58,2740.23,314.18,1510.42,1340.68,958.52,117.36,814.54,909.0,491.07,1067.22,722.57,423.96,1477.54,1076.33,1217.21,1337.3,323.81,2984.12,414.33,947.97,743.55,2541.23,1185.49,891.27,1334.47,1709.17,976.91,317.76,887.48,4957.0,548.15,1153.11,840.04,813.88,914.88,1086.3,779.02,705.21,983.78,1178.31,887.79,500.15,1269.86,1969.16,2081.61,938.42,1395.38,301.29,578.98,1931.997976190528,1002.61,531.95,339.07,1518.1,936.82,767.7,396.28,432.09,1169.54,1291.54,1191.83,732.61,259.13,458.52,1165.48,916.3,2147.93,5835.95,724.79,1576.5,2688.38,987.98,1724.29,701.37,477.03,1138.08,1142.69,522.51,548.63,2175.36,625.0,700.3,1403.72,573.19,1306.62,666.65,915.68,447.42,1371.78,1496.41,533.02,570.29,737.82,446.72,1154.28,629.47,1510.42,1170.75,1269.25,1320.88,487.56,1243.05,1920.49,1130.56,1482.78,710.05,328.52,1068.2,5715.645721622571,1121.42,761.81,911.4,1125.61,180.3,1540.34,1522.54,682.75,684.85,1039.67,2336.16,1165.0,1091.87,419.56,1216.95,860.16,673.71,2064.88,2912.91,412.1,370.26,1028.64,793.25,1207.06,623.0,2017.19,1517.64,817.07,1454.18,844.62,1472.66,469.74,351.03,1831.06,713.71,789.91,277.42,1165.0,266.67,1291.26,962.93,488.51,398.56,824.15,927.03,772.14,2597.19,1067.65,575.88,834.72,1193.68,1215.88,743.37,1180.61,714.08,272.4,1054.6,309.5,256.12,624.84,1450.54,1137.94,1370.37,6698.681909169198,1494.1,1115.61,1584.07,807.62,1117.42,1200.54,931.58,1245.21,501.5,1159.51,1178.56,1658.2,1274.52,891.31,569.42],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Media\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.32,0.1,0.55,0.46,0.14,0.47,0.4,0.12,0.53,0.37,0.15,0.83,0.59,0.28,0.5,0.29,0.53,0.04,0.35,0.08,0.35,0.6,0.24,0.51,0.48,0.51,0.25,0.45,0.67,0.13,0.34,0.5,0.38,0.07,0.47,0.68,0.2,0.29,0.2,0.42,0.19,0.42,0.61,0.28,0.47,0.24,0.38,0.49,0.16,0.03,0.72,0.34,0.08,0.28,0.34,0.13,0.49,0.1,0.6,0.27,0.45,0.23,0.16,0.15,0.16,0.25,0.21,0.8,0.07,0.19,0.38,0.17,0.24,0.24,0.71,0.2,0.75,0.04,0.47,0.47,0.27,0.15,0.25,0.1,0.21,0.37,0.42,0.53,0.47,0.39,0.42,0.19,0.35,0.16,0.16,0.04,0.33,0.52,0.48,0.41,0.17,0.27,0.45,0.14,0.13,0.19,0.5,0.06,0.5,0.35,0.07,0.4,0.4,0.37,0.34,0.47,0.07,0.4,0.49,0.49,0.93,0.52,0.39,0.34,0.13,0.25,0.6,0.18,0.08,0.31,0.17,0.59,0.59,0.64,0.68,0.31,0.47,0.17,0.53,0.69,0.13,0.26,0.28,0.29,0.17,0.51,0.41,0.41,0.52,0.19,0.07,0.51,0.79,0.37,0.41,0.07,0.28,0.27,0.59,0.04,0.44,0.24,0.78,0.42,0.34,0.18,0.3,0.16,0.07,0.04,0.3,0.83,0.08,0.38,0.48,0.33,0.18,0.35,0.5,0.12,0.12,0.47,0.66,0.35,0.16,0.46,0.04,0.77,0.67,0.35,0.12,0.19,0.59,0.14,0.13,0.05,0.47,0.03,0.61,0.5],\"xaxis\":\"x\",\"y\":[75.06,67.42,59.05,86.81,80.5,75.18,34.77,77.79,57.2,76.11,82.12,63.08,60.17,75.44,55.25,71.07,58.0,75.32,68.38,87.75,70.95,63.39,52.76,70.85,62.57,87.12,66.0,73.15,72.56,62.42,65.6,83.16,51.37,63.75,66.66,50.66,59.66,28.61,68.39,71.02,64.79,70.14,72.09,64.01,87.64,73.2,62.83,42.11,79.92,74.74,74.13,70.38,62.83,75.18,70.61,64.17,62.87,68.79,69.66,71.27,73.73,57.69,68.1,65.94,55.82,75.28,100.0,70.9,62.81,64.24,78.28,67.72,68.89,52.77,63.25,77.56,66.62,63.38,54.42,46.17,89.38,84.79,76.79,67.96,86.56,60.58,66.23,65.72,71.62,75.28,82.66,58.85,76.92,62.91,74.2,57.87,50.28,74.11,62.41,67.22,63.51,62.98,62.85,57.66,56.27,93.54,81.53,58.83,55.25,83.26,65.43,74.67,62.03,75.11,54.84,56.14,72.84,67.52,78.14,54.32,63.39,71.0,60.49,80.46,69.47,66.24,58.13,67.05,89.44,74.88,81.9,58.65,57.73,59.88,73.1,66.54,73.19,57.62,78.81,69.01,88.27,57.21,69.76,47.09,84.36,76.94,69.65,71.35,72.3,63.45,66.17,64.95,61.83,55.37,50.55,100.0,57.58,66.74,57.73,65.88,75.96,63.94,57.73,65.79,72.32,76.08,55.18,75.2,76.35,69.48,63.61,70.59,68.87,67.55,86.57,71.09,78.49,74.04,64.13,48.14,81.29,58.35,75.25,76.09,69.66,57.07,60.58,57.98,89.98,90.99,63.94,71.63,70.76,52.28,84.64,63.64,73.84,77.1,72.25,100.0],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Content\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_B\",\"Client_F\",\"Client_\\\\\",\"Client_D\",\"Client_F\",\"Client_[\",\"Client_C\",\"Client_G\",\"Client_C\",\"Client_A\",\"Client_C\",\"Client_H\",\"Client_F\",\"Client_A\",\"Client_H\",\"Client_A\",\"Client_H\",\"Client_F\",\"Client_G\",\"Client_G\",\"Client_G\",\"Client_B\",\"Client_G\",\"Client_C\",\"Client_E\",\"Client_A\",\"Client_B\",\"Client_G\",\"Client_A\",\"Client_E\",\"Client_E\",\"Client_H\",\"Client_B\",\"Client_B\",\"Client_B\",\"Client_W\",\"Client_D\",\"Client_E\",\"Client_F\",\"Client_D\",\"Client_E\",\"Client_C\",\"Client_B\",\"Client_E\",\"Client_E\",\"Client_F\",\"Client_A\",\"Client_A\",\"Client_G\",\"Client_C\",\"Client_A\",\"Client_B\",\"Client_R\",\"Client_C\",\"Client_C\",\"Client_H\",\"Client_F\",\"Client_B\",\"Client_D\",\"Client_F\",\"Client_G\",\"Client_H\",\"Client_C\",\"Client_G\",\"Client_D\",\"Client_G\",\"Client_E\",\"Client_F\",\"Client_F\",\"Client_A\",\"Client_A\",\"Client_B\",\"Client_B\",\"Client_A\",\"Client_B\",\"Client_A\",\"Client_F\",\"Client_H\",\"Client_H\",\"Client_G\",\"Client_H\",\"Client_G\",\"Client_E\",\"Client_E\",\"Client_G\",\"Client_L\",\"Client_D\",\"Client_F\",\"Client_F\",\"Client_D\",\"Client_H\",\"Client_F\",\"Client_F\",\"Client_Z\",\"Client_F\",\"Client_B\",\"Client_E\",\"Client_D\",\"Client_A\",\"Client_X\",\"Client_G\",\"Client_E\",\"Client_B\",\"Client_B\",\"Client_G\",\"Client_C\",\"Client_H\",\"Client_D\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_H\",\"Client_B\",\"Client_G\",\"Client_G\",\"Client_B\",\"Client_D\",\"Client_D\",\"Client_D\",\"Client_C\",\"Client_G\",\"Client_G\",\"Client_H\",\"Client_B\",\"Client_F\",\"Client_D\",\"Client_E\",\"Client_H\",\"Client_E\",\"Client_E\",\"Client_F\",\"Client_D\",\"Client_G\",\"Client_A\",\"Client_H\",\"Client_F\",\"Client_D\",\"Client_F\",\"Client_C\",\"Client_C\",\"Client_E\",\"Client_F\",\"Client_B\",\"Client_C\",\"Client_F\",\"Client_A\",\"Client_B\",\"Client_C\",\"Client_B\",\"Client_D\",\"Client_B\",\"Client_D\",\"Client_B\",\"Client_G\",\"Client_A\",\"Client_G\",\"Client_B\",\"Client_A\",\"Client_E\",\"Client_G\",\"Client_E\",\"Client_A\",\"Client_G\",\"Client_E\",\"Client_F\",\"Client_G\",\"Client_C\",\"Client_Y\",\"Client_D\",\"Client_E\",\"Client_E\",\"Client_G\",\"Client_D\",\"Client_H\",\"Client_F\",\"Client_C\",\"Client_G\",\"Client_H\",\"Client_A\",\"Client_B\",\"Client_G\",\"Client_G\",\"Client_D\",\"Client_F\",\"Client_G\",\"Client_D\",\"Client_H\",\"Client_G\",\"Client_D\",\"Client_D\",\"Client_H\",\"Client_C\",\"Client_B\",\"Client_A\",\"Client_H\",\"Client_E\",\"Client_E\",\"Client_G\",\"Client_E\",\"Client_G\",\"Client_C\"],\"legendgroup\":\"Content\",\"marker\":{\"color\":\"rgb(82, 188, 163)\",\"size\":[755.79,1176.41,516.16,856.14,1552.77,1740.79,2102.08,1255.87,2190.15,698.79,837.27,1391.24,212.46,372.91,1390.19,1512.72,1498.43,848.47,412.26,1676.43,873.3,1486.94,1430.46,1204.84,1356.48,1508.84,814.36,713.87,371.57,712.14,519.78,712.67,687.47,561.32,817.66,635.19,316.54,822.69,315.85,1234.66,628.27,562.64,813.4,499.26,1100.58,351.23,1356.23,741.67,1175.02,310.11,463.82,1431.64,874.19,957.7,1813.14,3019.54,450.34,1301.38,548.44,2568.26,2228.37,1990.0,458.45,2842.5,1146.58,1005.57,1231.63,1376.58,584.13,664.05,723.64,801.48,511.52,799.45,1659.99,1722.57,857.09,1193.69,1244.31,775.54,917.18,276.06,851.73,796.61,706.24,593.93,799.89,476.09,1732.1,299.67,1512.61,389.33,683.47,1748.76,510.32,816.38,769.77,1631.2,1041.97,1136.08,1182.18,1272.87,1062.12,1228.38,976.25,1035.96,1341.79,1145.05,1295.19,885.59,1156.76,492.09,987.41,990.34,1188.31,902.49,642.33,1113.82,805.82,1211.54,818.35,826.94,771.52,375.41,277.42,887.56,1355.9,1080.24,201.79,1010.87,1038.91,1452.84,968.18,2265.45,2953.21,4088.0,644.68,963.58,700.89,989.86,129.98,932.92,570.21,414.26,1143.15,510.22,1375.39,1532.3,766.72,766.18,956.13,764.66,605.01,627.55,1242.45,984.52,854.48,1100.71,553.5,368.34,2319.7,445.88,459.38,629.56,542.72,768.82,1162.59,969.92,748.71,1412.69,1122.23,1105.95,708.29,1013.35,1394.38,639.57,714.29,412.37,14927.204323932638,2262.64,968.18,690.77,1436.13,446.92,1925.2,640.68,1162.06,1333.08,586.0,1514.14,905.32,739.28,773.95,658.11,973.29,1512.86,1066.0,704.98,864.51,983.5,2253.77],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Content\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.37,0.69,0.4,0.52,0.24,0.29,0.5,0.44,0.36,0.23,0.61,0.42,0.12,0.42,0.29,0.34,0.32,0.7,0.43,0.46,0.1,0.07,0.47,0.78,0.05,0.29,0.53,0.13,0.69,0.33,0.14,0.47,0.41,0.4,0.24,0.43,0.55,0.57,0.41,0.2,0.36,0.73,0.39,0.57,0.78,0.24,0.48,0.41,0.59,0.71,0.61,0.41,0.58,0.54,0.28,0.26,0.5,0.21,0.45,0.17,0.64,0.43,0.28,0.58,0.34,0.62,0.32,0.57,0.78,0.38,0.21,0.31,0.15,0.12,0.36,0.14,0.37,0.55,0.37,0.65,0.41,0.26,0.17,0.2,0.44,0.16,0.02,0.53,0.74,0.16,0.6,0.32,0.57,0.22,0.47,0.71,0.39,0.16,0.22,0.26,0.4,0.52,0.59,0.4,0.35,0.23,0.21,0.54,0.25,0.02,0.22,0.55,0.32,0.25,0.4,0.54,0.55,0.42,0.57,0.19,0.25,0.51,0.48,0.51,0.37,0.23,0.27,0.75,0.63,0.44,0.26,0.47,0.22,0.68,0.08,0.39,0.19,0.16,0.72,0.64,0.63,0.48,0.59,0.36,0.37,0.32,0.14,0.37,0.38,0.07,0.42,0.3,0.13,0.1,0.39,0.1,0.27,0.54,0.57,0.78,0.54,0.54,0.54,0.35,0.37,0.44,0.41,0.18,0.3,0.25,0.34,0.2,0.41,0.28,0.29,0.31,0.29,0.47,0.22,0.32,0.22,0.57,0.48,0.42,0.59,0.18,0.55,0.66,0.23,0.68,0.33,0.67,0.36,0.24,0.54,0.11,0.19,0.81,0.18,0.61,0.59],\"xaxis\":\"x\",\"y\":[84.11,76.64,58.61,100.0,64.38,36.81,69.78,69.28,54.52,53.52,77.06,64.28,68.8,88.08,60.84,70.82,63.02,74.0,58.52,69.34,40.03,72.08,65.61,50.67,89.52,80.37,42.13,80.13,73.18,84.83,83.92,71.43,79.73,79.91,85.99,73.21,60.72,69.44,82.09,62.59,48.09,66.94,82.96,27.01,43.77,66.03,79.29,89.3,68.66,72.48,77.53,75.3,72.33,69.8,88.97,79.97,66.79,58.7,60.62,35.27,55.92,61.05,72.25,83.47,52.3,86.24,75.27,58.52,95.41,67.38,75.0,83.68,72.68,86.27,69.34,69.41,86.71,64.56,68.74,60.27,60.85,58.94,79.94,72.61,72.44,74.96,74.07,94.62,67.25,74.14,66.33,58.68,85.12,61.51,80.28,56.84,69.1,65.72,69.14,80.16,67.36,62.21,63.05,41.54,87.74,75.15,81.02,69.65,80.0,54.43,55.31,62.08,57.45,68.45,67.8,58.63,78.19,35.74,79.06,70.38,72.62,70.61,83.48,61.09,91.33,81.14,48.77,69.45,81.62,49.31,42.08,77.41,67.3,65.77,78.73,75.13,75.51,72.02,73.04,65.59,73.12,56.88,59.18,90.84,74.39,63.55,82.19,80.19,68.77,64.74,75.77,65.0,68.68,54.92,80.16,63.75,74.99,78.5,56.1,67.96,69.24,59.26,79.92,68.16,82.79,80.18,21.28,78.82,63.65,57.0,54.54,17.96,71.78,63.9,71.31,93.12,62.9,55.0,49.32,56.57,67.3,45.22,79.6,78.84,65.98,67.47,76.07,79.67,62.09,67.22,87.08,95.21,58.91,75.49,82.53,64.24,85.29,81.93,57.62,64.08,63.17],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Design\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_H\",\"Client_C\",\"Client_B\",\"Client_G\",\"Client_H\",\"Client_D\",\"Client_E\",\"Client_E\",\"Client_G\",\"Client_E\",\"Client_E\",\"Client_A\",\"Client_D\",\"Client_A\",\"Client_C\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_C\",\"Client_E\",\"Client_C\",\"Client_D\",\"Client_A\",\"Client_B\",\"Client_F\",\"Client_E\",\"Client_E\",\"Client_H\",\"Client_H\",\"Client_C\",\"Client_G\",\"Client_G\",\"Client_H\",\"Client_C\",\"Client_D\",\"Client_D\",\"Client_H\",\"Client_D\",\"Client_H\",\"Client_A\",\"Client_E\",\"Client_A\",\"Client_B\",\"Client_D\",\"Client_H\",\"Client_E\",\"Client_F\",\"Client_F\",\"Client_E\",\"Client_G\",\"Client_G\",\"Client_D\",\"Client_B\",\"Client_G\",\"Client_E\",\"Client_D\",\"Client_E\",\"Client_A\",\"Client_F\",\"Client_B\",\"Client_H\",\"Client_K\",\"Client_C\",\"Client_A\",\"Client_E\",\"Client_G\",\"Client_B\",\"Client_H\",\"Client_F\",\"Client_B\",\"Client_G\",\"Client_A\",\"Client_B\",\"Client_H\",\"Client_F\",\"Client_C\",\"Client_C\",\"Client_E\",\"Client_G\",\"Client_[\",\"Client_D\",\"Client_C\",\"Client_C\",\"Client_F\",\"Client_E\",\"Client_H\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_E\",\"Client_D\",\"Client_D\",\"Client_X\",\"Client_G\",\"Client_Q\",\"Client_A\",\"Client_F\",\"Client_D\",\"Client_C\",\"Client_H\",\"Client_F\",\"Client_G\",\"Client_G\",\"Client_F\",\"Client_A\",\"Client_C\",\"Client_H\",\"Client_F\",\"Client_F\",\"Client_E\",\"Client_B\",\"Client_H\",\"Client_B\",\"Client_G\",\"Client_D\",\"Client_E\",\"Client_E\",\"Client_H\",\"Client_A\",\"Client_G\",\"Client_C\",\"Client_C\",\"Client_D\",\"Client_E\",\"Client_H\",\"Client_G\",\"Client_C\",\"Client_H\",\"Client_D\",\"Client_B\",\"Client_E\",\"Client_B\",\"Client_B\",\"Client_C\",\"Client_F\",\"Client_B\",\"Client_D\",\"Client_G\",\"Client_E\",\"Client_D\",\"Client_A\",\"Client_F\",\"Client_G\",\"Client_D\",\"Client_E\",\"Client_G\",\"Client_G\",\"Client_E\",\"Client_F\",\"Client_C\",\"Client_B\",\"Client_F\",\"Client_H\",\"Client_D\",\"Client_E\",\"Client_C\",\"Client_E\",\"Client_H\",\"Client_P\",\"Client_A\",\"Client_H\",\"Client_H\",\"Client_H\",\"Client_B\",\"Client_G\",\"Client_B\",\"Client_N\",\"Client_E\",\"Client_D\",\"Client_B\",\"Client_B\",\"Client_A\",\"Client_D\",\"Client_B\",\"Client_F\",\"Client_F\",\"Client_E\",\"Client_D\"],\"legendgroup\":\"Design\",\"marker\":{\"color\":\"rgb(153, 201, 69)\",\"size\":[1217.84,455.68,398.65,536.52,1149.93,252.12,865.21,494.09,542.7,1255.93,871.81,622.85,977.84,833.4,1036.21,351.72,749.72,2392.83,851.12,1075.59,639.8,1768.27,934.16,1563.54,689.41,612.82,384.72,902.57,440.64,616.68,897.13,1228.51,1032.76,1208.07,1039.2,965.74,749.01,467.53,772.74,1645.27,1793.99,686.25,1709.22,5011.330201945474,775.54,1868.32,2052.49,738.33,605.52,424.21,511.2,1553.13,401.67,982.29,1260.22,663.91,1064.43,931.61,884.71,1182.54,702.83,528.39,1384.6,2546.43,401.55,1246.67,482.98,959.72,1446.11,1076.52,1996.79,639.14,1878.62,817.2,1215.97,533.53,968.08,897.05,878.46,1513.42,1231.68,1125.97,1200.17,751.97,1351.95,522.42,452.37,1829.39,786.88,2037.51,499.74,1112.98,571.55,712.03,169.4,1260.69,1189.57,1473.16,861.81,546.5,1075.96,1973.71,1466.8,1470.88,1595.97,5087.1,1174.24,746.76,422.52,556.49,348.55,731.46,421.28,513.87,813.76,852.23,759.67,651.98,1614.73,740.38,371.75,941.59,1336.37,1176.3,1131.08,1370.4,1886.16,1854.54,361.1,2695.26,1015.01,1275.05,1261.82,1150.9,1247.97,588.25,843.68,689.89,985.61,602.23,812.62,822.19,239.65,2515.59,1377.39,845.29,878.71,560.96,147.33,892.08,740.62,970.97,181.05,2555.28,2054.09,4073.095805945132,984.85,1069.53,2328.97,1080.82,589.56,1369.43,1437.93,1214.48,1723.31,1907.73,1425.77,1411.38,833.06,6317.81,596.53,282.61,4486.47,795.14,1611.69,884.91,207.01,477.78],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Design\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.61,0.15,0.24,0.69,0.72,0.4,0.33,0.23,0.19,0.1,0.54,0.52,0.28,0.49,0.23,0.11,0.14,0.22,0.49,0.66,0.08,0.51,0.56,0.53,0.24,0.33,0.45,0.03,0.12,0.38,0.51,0.71,0.43,0.31,0.25,0.21,0.51,0.1,0.07,0.52,0.54,0.27,0.65,0.29,0.36,0.18,0.2,0.05,0.51,0.06,0.45,0.32,0.48,0.71,0.23,0.29,0.7,0.28,0.16,0.79,0.26,0.68,0.46,0.5,0.63,0.08,0.45,0.71,0.3,0.3,0.43,0.12,0.3,0.14,0.72,0.39,0.37,0.52,0.21,0.14,0.87,0.44,0.5,0.19,0.71,0.51,0.43,0.2,0.13,0.62,0.18,0.22,0.17,0.62,0.2,0.51,0.29,0.67,0.38,0.34,0.26,0.75,0.42,0.3,0.29,0.44,0.42,0.48,0.57,0.2,0.15,0.45,0.32,0.41,0.12,0.27,0.65,0.38,0.23,0.64,0.72,0.47,0.73,0.28,0.44,0.47,0.86,0.07,0.33,0.19,0.16,0.45,0.24,0.35,0.41,0.22,0.53,0.66,0.18,0.5,0.31,0.69,0.32,0.25,0.22,0.05,0.3,0.23,0.4,0.21,0.28,0.8,0.56,0.74,0.48,0.28,0.2,0.45,0.38,0.13,0.18,0.48,0.59,0.39,0.71,0.44,0.16,0.51,0.59,0.58,0.52,0.05,0.45,0.52,0.1,0.21,0.34,0.56],\"xaxis\":\"x\",\"y\":[44.36,71.06,60.28,75.75,81.79,75.21,82.47,81.74,82.7,75.63,50.28,80.93,72.25,59.19,60.85,60.89,64.65,62.74,80.64,50.55,73.56,68.66,88.52,76.87,66.11,39.53,88.39,75.13,70.78,59.74,69.03,59.45,51.15,78.19,57.66,59.0,84.0,65.75,55.06,69.28,52.34,74.98,47.24,74.12,59.78,45.71,72.88,75.59,89.15,68.02,69.67,67.66,83.2,80.78,71.91,89.77,79.84,48.35,82.97,85.55,78.84,70.61,88.19,56.79,79.78,95.6,75.85,68.54,71.97,74.71,66.15,90.73,80.14,58.11,66.22,60.24,92.34,74.66,86.62,58.41,30.8,72.88,85.81,79.55,68.31,77.32,83.26,79.22,80.46,53.95,65.88,52.83,66.22,54.04,71.68,76.66,53.48,77.71,77.77,53.66,61.23,63.2,82.35,70.63,93.97,80.64,82.17,71.65,75.95,82.58,56.83,82.17,64.69,74.78,61.87,64.36,62.56,70.78,74.42,79.0,57.33,74.95,75.78,73.44,89.51,45.03,49.36,62.31,75.75,64.04,88.85,64.38,68.91,86.36,78.16,63.45,81.11,63.8,62.33,68.23,65.66,72.4,80.31,68.41,74.64,70.44,48.37,80.89,34.85,63.27,71.86,47.2,87.62,58.25,73.51,80.99,84.63,63.64,68.71,91.58,74.99,44.98,80.93,67.36,34.54,63.42,36.66,66.04,66.59,30.34,56.85,94.04,73.86,91.88,62.83,79.26,88.08,73.27],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=DESIGN\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_G\",\"Client_B\",\"Client_E\",\"Client_G\",\"Client_E\"],\"legendgroup\":\"DESIGN\",\"marker\":{\"color\":\"rgb(204, 97, 176)\",\"size\":[839.12,1060.03,408.43,576.85,1296.65],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"DESIGN\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.14,0.66,0.21,0.28,0.39],\"xaxis\":\"x\",\"y\":[64.7,70.41,86.75,88.31,71.86],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=content\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_B\",\"Client_E\",\"Client_F\",\"Client_C\",\"Client_C\",\"Client_E\",\"Client_G\",\"Client_B\"],\"legendgroup\":\"content\",\"marker\":{\"color\":\"rgb(36, 121, 108)\",\"size\":[504.64,1097.19,823.38,1092.74,1262.19,894.31,986.5,1095.67],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"content\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.17,0.9,0.55,0.46,0.72,0.35,0.6,0.5],\"xaxis\":\"x\",\"y\":[68.36,51.84,59.7,67.44,62.19,64.04,83.93,75.45],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=seo\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_C\",\"Client_F\",\"Client_C\",\"Client_C\",\"Client_H\",\"Client_E\",\"Client_C\",\"Client_T\",\"Client_B\",\"Client_H\",\"Client_E\"],\"legendgroup\":\"seo\",\"marker\":{\"color\":\"rgb(218, 165, 27)\",\"size\":[757.58,856.96,917.01,603.0,471.22,675.91,1922.44,1672.76,1796.58,677.66,1108.29],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"seo\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.05,0.02,0.23,0.65,0.08,0.32,0.09,0.52,0.15,0.16,0.19],\"xaxis\":\"x\",\"y\":[83.89,69.46,87.55,45.87,90.32,84.74,81.26,73.49,60.04,54.74,75.88],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=MEDIA\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_B\"],\"legendgroup\":\"MEDIA\",\"marker\":{\"color\":\"rgb(47, 138, 196)\",\"size\":[1053.67],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"MEDIA\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.15],\"xaxis\":\"x\",\"y\":[76.98],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=media\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_H\",\"Client_B\",\"Client_S\",\"Client_F\",\"Client_B\",\"Client_F\"],\"legendgroup\":\"media\",\"marker\":{\"color\":\"rgb(118, 78, 159)\",\"size\":[740.2,1735.84,1889.16,236.44,1083.83,1444.99],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"media\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.43,0.36,0.39,0.33,0.19,0.05],\"xaxis\":\"x\",\"y\":[52.78,63.68,65.34,78.47,64.12,61.54],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Paid Media\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_H\",\"Client_H\"],\"legendgroup\":\"Paid Media\",\"marker\":{\"color\":\"rgb(237, 100, 90)\",\"size\":[2193.06,847.01],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Paid Media\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.24,0.12],\"xaxis\":\"x\",\"y\":[58.86,82.79],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Contennt\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_A\",\"Client_G\"],\"legendgroup\":\"Contennt\",\"marker\":{\"color\":\"rgb(165, 170, 153)\",\"size\":[560.78,670.79],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Contennt\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.09,0.16],\"xaxis\":\"x\",\"y\":[71.17,67.11],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=Desgn\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_B\",\"Client_E\"],\"legendgroup\":\"Desgn\",\"marker\":{\"color\":\"rgb(229, 134, 6)\",\"size\":[668.38,671.33],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"Desgn\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.25,0.3],\"xaxis\":\"x\",\"y\":[90.36,93.7],\"yaxis\":\"y\",\"type\":\"scatter\"},{\"hovertemplate\":\"\\u003cb\\u003e%{hovertext}\\u003c\\u002fb\\u003e\\u003cbr\\u003e\\u003cbr\\u003eteam=design\\u003cbr\\u003eAI Usage %=%{x}\\u003cbr\\u003eQuality Score=%{y}\\u003cbr\\u003erevenue=%{marker.size}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"hovertext\":[\"Client_E\",\"Client_G\",\"Client_F\",\"Client_G\"],\"legendgroup\":\"design\",\"marker\":{\"color\":\"rgb(93, 105, 177)\",\"size\":[910.37,986.71,900.91,1840.1],\"sizemode\":\"area\",\"sizeref\":37.31801080983159,\"symbol\":\"circle\"},\"mode\":\"markers\",\"name\":\"design\",\"orientation\":\"v\",\"showlegend\":true,\"x\":[0.46,0.44,0.35,0.5],\"xaxis\":\"x\",\"y\":[61.01,81.36,83.7,63.6],\"yaxis\":\"y\",\"type\":\"scatter\"}],\"layout\":{\"template\":{\"data\":{\"barpolar\":[{\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"barpolar\"}],\"bar\":[{\"error_x\":{\"color\":\"#f2f5fa\"},\"error_y\":{\"color\":\"#f2f5fa\"},\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"bar\"}],\"carpet\":[{\"aaxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"baxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"type\":\"carpet\"}],\"choropleth\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"choropleth\"}],\"contourcarpet\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"contourcarpet\"}],\"contour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"contour\"}],\"heatmapgl\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmapgl\"}],\"heatmap\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmap\"}],\"histogram2dcontour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2dcontour\"}],\"histogram2d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2d\"}],\"histogram\":[{\"marker\":{\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"histogram\"}],\"mesh3d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"mesh3d\"}],\"parcoords\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"parcoords\"}],\"pie\":[{\"automargin\":true,\"type\":\"pie\"}],\"scatter3d\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatter3d\"}],\"scattercarpet\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattercarpet\"}],\"scattergeo\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattergeo\"}],\"scattergl\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scattergl\"}],\"scattermapbox\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattermapbox\"}],\"scatterpolargl\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolargl\"}],\"scatterpolar\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolar\"}],\"scatter\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scatter\"}],\"scatterternary\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterternary\"}],\"surface\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"surface\"}],\"table\":[{\"cells\":{\"fill\":{\"color\":\"#506784\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"header\":{\"fill\":{\"color\":\"#2a3f5f\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"type\":\"table\"}]},\"layout\":{\"annotationdefaults\":{\"arrowcolor\":\"#f2f5fa\",\"arrowhead\":0,\"arrowwidth\":1},\"autotypenumbers\":\"strict\",\"coloraxis\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"colorscale\":{\"diverging\":[[0,\"#8e0152\"],[0.1,\"#c51b7d\"],[0.2,\"#de77ae\"],[0.3,\"#f1b6da\"],[0.4,\"#fde0ef\"],[0.5,\"#f7f7f7\"],[0.6,\"#e6f5d0\"],[0.7,\"#b8e186\"],[0.8,\"#7fbc41\"],[0.9,\"#4d9221\"],[1,\"#276419\"]],\"sequential\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"sequentialminus\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]]},\"colorway\":[\"#636efa\",\"#EF553B\",\"#00cc96\",\"#ab63fa\",\"#FFA15A\",\"#19d3f3\",\"#FF6692\",\"#B6E880\",\"#FF97FF\",\"#FECB52\"],\"font\":{\"color\":\"#f2f5fa\"},\"geo\":{\"bgcolor\":\"rgb(17,17,17)\",\"lakecolor\":\"rgb(17,17,17)\",\"landcolor\":\"rgb(17,17,17)\",\"showlakes\":true,\"showland\":true,\"subunitcolor\":\"#506784\"},\"hoverlabel\":{\"align\":\"left\"},\"hovermode\":\"closest\",\"mapbox\":{\"style\":\"dark\"},\"paper_bgcolor\":\"rgb(17,17,17)\",\"plot_bgcolor\":\"rgb(17,17,17)\",\"polar\":{\"angularaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"radialaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"scene\":{\"xaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"yaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"zaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"}},\"shapedefaults\":{\"line\":{\"color\":\"#f2f5fa\"}},\"sliderdefaults\":{\"bgcolor\":\"#C8D4E3\",\"bordercolor\":\"rgb(17,17,17)\",\"borderwidth\":1,\"tickwidth\":0},\"ternary\":{\"aaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"baxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"caxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"title\":{\"x\":0.05},\"updatemenudefaults\":{\"bgcolor\":\"#506784\",\"borderwidth\":0},\"xaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2},\"yaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2}}},\"xaxis\":{\"anchor\":\"y\",\"domain\":[0.0,1.0],\"title\":{\"text\":\"AI Usage %\"}},\"yaxis\":{\"anchor\":\"x\",\"domain\":[0.0,1.0],\"title\":{\"text\":\"Quality Score\"}},\"legend\":{\"title\":{\"text\":\"team\"},\"tracegroupgap\":0,\"itemsizing\":\"constant\"},\"title\":{\"text\":\"AI Adoption vs Output Quality\"},\"margin\":{\"l\":20,\"r\":20,\"t\":50,\"b\":20},\"plot_bgcolor\":\"rgba(0,0,0,0)\",\"paper_bgcolor\":\"rgba(0,0,0,0)\"}}", "tier": "{\"data\":[{\"domain\":{\"x\":[0.0,1.0],\"y\":[0.0,1.0]},\"hole\":0.6,\"hovertemplate\":\"client_tier=%{label}\\u003cextra\\u003e\\u003c\\u002fextra\\u003e\",\"labels\":[\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"low\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"high\",\"low\",\"low\",\"high\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"low\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"low\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"high\",\"high\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"low\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"high\",\"high\",\"high\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"high\",\"high\",\"high\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"low\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"low\",\"low\",\"low\",\"mid\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"mid\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"low\",\"high\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"high\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"high\",\"low\",\"low\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"mid\",\"low\",\"mid\",\"low\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"low\",\"mid\",\"low\",\"high\",\"mid\",\"low\",\"low\",\"low\",\"high\",\"low\",\"high\",\"mid\",\"mid\",\"low\",\"low\",\"mid\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"low\",\"mid\",\"high\",\"mid\",\"high\",\"low\",\"high\",\"mid\",\"high\",\"high\",\"high\",\"mid\",\"low\",\"mid\",\"high\",\"mid\",\"mid\",\"high\",\"low\",\"low\",\"low\",\"low\",\"mid\",\"mid\",\"high\",\"high\",\"low\",\"high\",\"high\",\"mid\",\"mid\",\"mid\",\"low\",\"mid\"],\"legendgroup\":\"\",\"name\":\"\",\"showlegend\":true,\"type\":\"pie\"}],\"layout\":{\"template\":{\"data\":{\"barpolar\":[{\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"barpolar\"}],\"bar\":[{\"error_x\":{\"color\":\"#f2f5fa\"},\"error_y\":{\"color\":\"#f2f5fa\"},\"marker\":{\"line\":{\"color\":\"rgb(17,17,17)\",\"width\":0.5},\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"bar\"}],\"carpet\":[{\"aaxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"baxis\":{\"endlinecolor\":\"#A2B1C6\",\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"minorgridcolor\":\"#506784\",\"startlinecolor\":\"#A2B1C6\"},\"type\":\"carpet\"}],\"choropleth\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"choropleth\"}],\"contourcarpet\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"contourcarpet\"}],\"contour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"contour\"}],\"heatmapgl\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmapgl\"}],\"heatmap\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"heatmap\"}],\"histogram2dcontour\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2dcontour\"}],\"histogram2d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"histogram2d\"}],\"histogram\":[{\"marker\":{\"pattern\":{\"fillmode\":\"overlay\",\"size\":10,\"solidity\":0.2}},\"type\":\"histogram\"}],\"mesh3d\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"type\":\"mesh3d\"}],\"parcoords\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"parcoords\"}],\"pie\":[{\"automargin\":true,\"type\":\"pie\"}],\"scatter3d\":[{\"line\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatter3d\"}],\"scattercarpet\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattercarpet\"}],\"scattergeo\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattergeo\"}],\"scattergl\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scattergl\"}],\"scattermapbox\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scattermapbox\"}],\"scatterpolargl\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolargl\"}],\"scatterpolar\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterpolar\"}],\"scatter\":[{\"marker\":{\"line\":{\"color\":\"#283442\"}},\"type\":\"scatter\"}],\"scatterternary\":[{\"marker\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"type\":\"scatterternary\"}],\"surface\":[{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"},\"colorscale\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"type\":\"surface\"}],\"table\":[{\"cells\":{\"fill\":{\"color\":\"#506784\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"header\":{\"fill\":{\"color\":\"#2a3f5f\"},\"line\":{\"color\":\"rgb(17,17,17)\"}},\"type\":\"table\"}]},\"layout\":{\"annotationdefaults\":{\"arrowcolor\":\"#f2f5fa\",\"arrowhead\":0,\"arrowwidth\":1},\"autotypenumbers\":\"strict\",\"coloraxis\":{\"colorbar\":{\"outlinewidth\":0,\"ticks\":\"\"}},\"colorscale\":{\"diverging\":[[0,\"#8e0152\"],[0.1,\"#c51b7d\"],[0.2,\"#de77ae\"],[0.3,\"#f1b6da\"],[0.4,\"#fde0ef\"],[0.5,\"#f7f7f7\"],[0.6,\"#e6f5d0\"],[0.7,\"#b8e186\"],[0.8,\"#7fbc41\"],[0.9,\"#4d9221\"],[1,\"#276419\"]],\"sequential\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]],\"sequentialminus\":[[0.0,\"#0d0887\"],[0.1111111111111111,\"#46039f\"],[0.2222222222222222,\"#7201a8\"],[0.3333333333333333,\"#9c179e\"],[0.4444444444444444,\"#bd3786\"],[0.5555555555555556,\"#d8576b\"],[0.6666666666666666,\"#ed7953\"],[0.7777777777777778,\"#fb9f3a\"],[0.8888888888888888,\"#fdca26\"],[1.0,\"#f0f921\"]]},\"colorway\":[\"#636efa\",\"#EF553B\",\"#00cc96\",\"#ab63fa\",\"#FFA15A\",\"#19d3f3\",\"#FF6692\",\"#B6E880\",\"#FF97FF\",\"#FECB52\"],\"font\":{\"color\":\"#f2f5fa\"},\"geo\":{\"bgcolor\":\"rgb(17,17,17)\",\"lakecolor\":\"rgb(17,17,17)\",\"landcolor\":\"rgb(17,17,17)\",\"showlakes\":true,\"showland\":true,\"subunitcolor\":\"#506784\"},\"hoverlabel\":{\"align\":\"left\"},\"hovermode\":\"closest\",\"mapbox\":{\"style\":\"dark\"},\"paper_bgcolor\":\"rgb(17,17,17)\",\"plot_bgcolor\":\"rgb(17,17,17)\",\"polar\":{\"angularaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"radialaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"scene\":{\"xaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"yaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"},\"zaxis\":{\"backgroundcolor\":\"rgb(17,17,17)\",\"gridcolor\":\"#506784\",\"gridwidth\":2,\"linecolor\":\"#506784\",\"showbackground\":true,\"ticks\":\"\",\"zerolinecolor\":\"#C8D4E3\"}},\"shapedefaults\":{\"line\":{\"color\":\"#f2f5fa\"}},\"sliderdefaults\":{\"bgcolor\":\"#C8D4E3\",\"bordercolor\":\"rgb(17,17,17)\",\"borderwidth\":1,\"tickwidth\":0},\"ternary\":{\"aaxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"baxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"},\"bgcolor\":\"rgb(17,17,17)\",\"caxis\":{\"gridcolor\":\"#506784\",\"linecolor\":\"#506784\",\"ticks\":\"\"}},\"title\":{\"x\":0.05},\"updatemenudefaults\":{\"bgcolor\":\"#506784\",\"borderwidth\":0},\"xaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2},\"yaxis\":{\"automargin\":true,\"gridcolor\":\"#283442\",\"linecolor\":\"#506784\",\"ticks\":\"\",\"title\":{\"standoff\":15},\"zerolinecolor\":\"#283442\",\"zerolinewidth\":2}}},\"legend\":{\"tracegroupgap\":0},\"title\":{\"text\":\"Client Segment Value\"},\"piecolorway\":[\"#e20074\",\"#9c004f\",\"#ffffff\",\"#444444\"],\"margin\":{\"l\":20,\"r\":20,\"t\":50,\"b\":20},\"plot_bgcolor\":\"rgba(0,0,0,0)\",\"paper_bgcolor\":\"rgba(0,0,0,0)\"}}" };
+        const replaceTheme = (str, keepColors = false) => {
+            let replaced = str
+                .replace(/#e20074/g, '#000000') // Replace pink/cream with black
+                .replace(/#9c004f/g, '#444444') // Replace dark pink with grey
+                .replace(/#f2f5fa/g, '#333333') // Replace light text with dark grey
+                .replace(/#ffffff/g, '#666666') // Replace white with mid grey
+                .replace(/#283442/g, '#e0e0e0') // Grid lines
+                .replace(/#506784/g, '#cccccc') // More grid lines
+                .replace(/rgb\(17,17,17\)/g, '#ffffff'); // Chart backgrounds
+
+            if (!keepColors) {
+                // Convert any rgb(r, g, b) to grayscale
+                replaced = replaced.replace(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/g, (match, r, g, b) => {
+                    const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                    return `rgb(${gray}, ${gray}, ${gray})`;
+                });
+
+                // Convert any remaining hex colors to grayscale
+                replaced = replaced.replace(/#([a-fA-F0-9]{6})/gi, (match, hex) => {
+                    const r = parseInt(hex.substring(0, 2), 16);
+                    const g = parseInt(hex.substring(2, 4), 16);
+                    const b = parseInt(hex.substring(4, 6), 16);
+                    const gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+                    const grayHex = gray.toString(16).padStart(2, '0');
+                    return `#${grayHex}${grayHex}${grayHex}`;
+                });
+            }
+
+            return replaced;
+        };
+
+        const trendDataStr = replaceTheme(cData.trend);
+        const tierDataStr = replaceTheme(cData.tier);
+        const aiImpactDataStr = replaceTheme(cData.ai_impact, true);
+
+        Plotly.newPlot('trendChart', JSON.parse(trendDataStr).data, JSON.parse(trendDataStr).layout, { responsive: true });
+        Plotly.newPlot('tierChart', JSON.parse(tierDataStr).data, JSON.parse(tierDataStr).layout, { responsive: true });
+        Plotly.newPlot('aiImpactChart', JSON.parse(aiImpactDataStr).data, JSON.parse(aiImpactDataStr).layout, { responsive: true });
+
+        // Navigation Logic
+        document.querySelectorAll('.nav-link[data-target]').forEach(link => {
+            link.addEventListener('click', function (e) {
+                e.preventDefault();
+
+                document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                this.classList.add('active');
+
+                const targetId = this.getAttribute('data-target');
+                document.querySelectorAll('.page-section').forEach(sec => sec.classList.remove('active'));
+                document.getElementById(targetId).classList.add('active');
+            });
+        });
+
+        // Chatbot Logic
+        function simulateChat() {
+            const textarea = document.querySelector('.chat-input-area textarea');
+            const history = document.getElementById('chatHistory');
+            const text = textarea.value.trim();
+            if (!text) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chat-message user';
+            userMsg.textContent = text;
+            history.appendChild(userMsg);
+
+            textarea.value = '';
+            history.scrollTop = history.scrollHeight;
+
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = 'chat-message ai';
+                aiMsg.innerHTML = '<strong>Alkemy AI:</strong> I have received your request regarding "' + text.substring(0, 20) + '...". Since I am a simulated demo, I cannot fully process this, but in a production environment I would perfectly execute this for you!';
+                history.appendChild(aiMsg);
+                history.scrollTop = history.scrollHeight;
+            }, 1000);
+        }
+    </script>
+</body>
+
+</html>
