@@ -304,7 +304,7 @@
                 Overview</a>
             <a href="#" class="nav-link" data-target="chatbot-section"><i class="fas fa-robot"></i> AI Chatbot</a>
             <a href="#" class="nav-link" data-target="tickets-section"><i class="fas fa-ticket-alt"></i> Tickets</a>
-            <a href="#" class="nav-link" data-target="projects-section"><i class="fas fa-layer-group"></i> Projects</a>
+            <a href="#" class="nav-link" data-target="tasks-section"><i class="fas fa-tasks"></i> Tasks</a>
         </div>
     </div>
     <div class="content">
@@ -326,7 +326,7 @@
                 </div>
                 <div class="col-md-3">
                     <div class="kpi-card">
-                        <div class="kpi-title">Active Projects</div>
+                        <div class="kpi-title">Active Tasks</div>
                         <div class="kpi-value">64</div>
                     </div>
                 </div>
@@ -609,17 +609,17 @@
             </div>
         </div>
 
-        <div id="projects-section" class="page-section">
+        <div id="tasks-section" class="page-section">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
-                    <h2 class="fw-bold mb-0">Project Portfolio</h2>
-                    <p class="text-muted">Overview of all active projects and assigned teams</p>
+                    <h2 class="fw-bold mb-0">Task Portfolio</h2>
+                    <p class="text-muted">Overview of all active tasks and assigned teams</p>
                 </div>
-                <button class="btn btn-alkemy"><i class="fas fa-plus"></i> New Project</button>
+                <button class="btn btn-alkemy"><i class="fas fa-plus"></i> New Task</button>
             </div>
             
             <div class="row g-4">
-                <!-- Project Card 1 -->
+                <!-- Task Card 1 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -639,12 +639,15 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-success" style="width: 75%"></div>
                             </div>
-                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Value-Based</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Project Card 2 -->
+                <!-- Task Card 2 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -664,11 +667,15 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-dark" style="width: 40%"></div>
                             </div>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Hourly</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Project Card 3 -->
+                <!-- Task Card 3 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -688,12 +695,15 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-success" style="width: 90%"></div>
                             </div>
-                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Value-Based</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Project Card 4 -->
+                <!-- Task Card 4 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -713,11 +723,15 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-dark" style="width: 25%"></div>
                             </div>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Hourly</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Project Card 5 -->
+                <!-- Task Card 5 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -737,11 +751,15 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-dark" style="width: 10%"></div>
                             </div>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Hourly</span>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Project Card 6 -->
+                <!-- Task Card 6 -->
                 <div class="col-md-4">
                     <div class="kpi-card h-100 d-flex flex-column">
                         <div class="d-flex justify-content-between align-items-start mb-3">
@@ -761,7 +779,10 @@
                             <div class="progress" style="height: 6px;">
                                 <div class="progress-bar bg-success" style="width: 100%"></div>
                             </div>
-                            <button class="btn btn-outline-dark btn-sm w-100 mt-3" style="border-radius: 8px;">Switch Pricing (Fixed/Value)</button>
+                            <div class="d-flex justify-content-between small text-muted mt-3">
+                                <span>Pricing Model:</span>
+                                <span class="fw-bold text-dark">Value-Based</span>
+                            </div>
                         </div>
                     </div>
                 </div>
